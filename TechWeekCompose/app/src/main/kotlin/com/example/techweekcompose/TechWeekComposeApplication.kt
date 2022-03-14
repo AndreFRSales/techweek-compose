@@ -2,6 +2,7 @@ package com.example.techweekcompose
 
 import android.app.Application
 import com.example.techweekcompose.di.repositoriesModule
+import com.example.techweekcompose.network.retrofitModule
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 
@@ -14,7 +15,7 @@ class TechWeekComposeApplication : Application() {
 
     private fun loadKoinGraph() {
         startKoin {
-            loadKoinModules(listOf(repositoriesModule))
+            loadKoinModules(listOf(repositoriesModule, retrofitModule))
         }
     }
 }
