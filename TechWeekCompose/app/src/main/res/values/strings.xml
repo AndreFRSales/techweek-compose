@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">TechWeekCompose</string>
+
+    <string name="main_icon_description">Image for pokemon: %s</string>
+
 </resources>

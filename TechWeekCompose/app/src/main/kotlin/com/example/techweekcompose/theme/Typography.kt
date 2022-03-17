@@ -19,6 +19,11 @@ data class Typography(
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp
     ),
+    val h6: TextStyle = TextStyle(
+        fontFamily = montserrat,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
+    ),
     val subtitle: TextStyle = TextStyle(
         fontFamily = montserrat,
         fontWeight = FontWeight.Normal,
