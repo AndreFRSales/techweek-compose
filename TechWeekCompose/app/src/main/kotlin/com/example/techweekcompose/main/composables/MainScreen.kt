@@ -2,7 +2,10 @@ package com.example.techweekcompose.main.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -10,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,10 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.example.techweekcompose.R
 import com.example.techweekcompose.common.composables.CustomDivider
+import com.example.techweekcompose.common.composables.GenericError
 import com.example.techweekcompose.common.composables.InfiniteListHandler
+import com.example.techweekcompose.common.composables.Loading
 import com.example.techweekcompose.main.MainViewModel
 import com.example.techweekcompose.main.UIState
 import com.example.techweekcompose.models.PokemonDomain
@@ -35,8 +41,8 @@ fun MainScreen() {
     val mainViewModel: MainViewModel by viewModel()
     val uiState by mainViewModel.uiState
     when (uiState) {
-        UIState.GenericError -> {}
-        UIState.Loading -> {}
+        UIState.GenericError -> MainGenericError(onClick = { mainViewModel.retry() })
+        UIState.Loading -> MainLoading()
         is UIState.Result -> {
             PokemonListComponent((uiState as UIState.Result))
         }
@@ -48,26 +54,34 @@ fun PokemonListComponent(result: UIState.Result) {
     val mainViewModel: MainViewModel by viewModel()
     val scrollState = rememberLazyListState()
     val nextPage = rememberUpdatedState(newValue = result.nextPage)
-    LazyColumn(
-        state = scrollState,
-        modifier = Modifier.background(color = PokemonTheme.colors.primary)
-    ) {
-        itemsIndexed(result.pokemonList) { index, pokemon ->
-            PokemonListItem(
-                pokemon = pokemon,
-                modifier = Modifier.padding(
-                    start = PokemonTheme.dimensions.medium,
-                    top = PokemonTheme.dimensions.medium,
-                    bottom = PokemonTheme.dimensions.medium
+    val weight = if(result.loading) 1f else 0.1f
+    Column(Modifier.fillMaxSize()) {
+        LazyColumn(
+            state = scrollState,
+            modifier = Modifier.weight(weight).background(color = PokemonTheme.colors.primary),
+        ) {
+            itemsIndexed(result.pokemonList) { index, pokemon ->
+                PokemonListItem(
+                    pokemon = pokemon,
+                    modifier = Modifier.padding(
+                        start = PokemonTheme.dimensions.medium,
+                        top = PokemonTheme.dimensions.medium,
+                        bottom = PokemonTheme.dimensions.medium
+                    )
                 )
-            )
-            if (index < result.pokemonList.lastIndex) CustomDivider()
+                if (index < result.pokemonList.lastIndex) CustomDivider()
+            }
+        }
+
+        if(result.loading) {
+            PagingLoading()
+        }
+
+        InfiniteListHandler(listState = scrollState, buffer = 2) {
+            mainViewModel.fetchNextPage(nextPage.value)
         }
     }
 
-    InfiniteListHandler(listState = scrollState, buffer = 2) {
-        mainViewModel.fetchNextPage(nextPage.value)
-    }
 }
 
 @Composable
@@ -98,3 +112,43 @@ fun PokemonListItem(pokemon: PokemonDomain, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun MainGenericError(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+) {
+    GenericError(
+        modifier = modifier.fillMaxSize(),
+        title = stringResource(id = R.string.main_generic_error_title),
+        description = stringResource(id = R.string.main_generic_error_description),
+        onClick = onClick
+    )
+}
+
+@Composable
+fun MainLoading() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(id = R.string.main_loading_title),
+            textAlign = TextAlign.Center,
+            style = PokemonTheme.typography.caption,
+            color = PokemonTheme.colors.secondary
+        )
+        Loading(modifier = Modifier.padding(top = PokemonTheme.iconDimensions.regular))
+    }
+}
+
+@Composable
+fun PagingLoading() {
+    Row(
+        modifier = Modifier.fillMaxWidth().background(PokemonTheme.colors.primary),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Loading(modifier = Modifier.size(PokemonTheme.iconDimensions.small))
+    }
+}

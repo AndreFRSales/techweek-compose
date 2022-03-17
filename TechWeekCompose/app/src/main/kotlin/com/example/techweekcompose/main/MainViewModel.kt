@@ -35,6 +35,7 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
     }
 
     fun fetchNextPage(nextPage: String?) {
+        _uiState.value = UIState.Result(pokemonList, nextPage = nextPage, true)
         viewModelScope.launch {
             nextPage?.let {
                 val (limit, offset) = nextPage.getLimitAndOffsetValues()
@@ -42,6 +43,10 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
                 processPokemonData(response)
             }
         }
+    }
+
+    fun retry() {
+        fetchFirstPage()
     }
 
     private fun processPokemonData(pokemonListResponse: PokemonListResponse) {
@@ -61,7 +66,7 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
                         }
                     }
                     pokemonList = pokemonList + pokemonListDomain
-                    _uiState.value = UIState.Result(pokemonList, nextPage = next, total = count)
+                    _uiState.value = UIState.Result(pokemonList, nextPage = next, loading = false)
                 }
             }
         }
@@ -71,6 +76,10 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
 sealed class UIState {
     object Loading : UIState()
     object GenericError : UIState()
-    data class Result(val pokemonList: List<PokemonDomain>, val nextPage: String?, val total: Int) :
+    data class Result(
+        val pokemonList: List<PokemonDomain>,
+        val nextPage: String?,
+        val loading: Boolean = false
+    ) :
         UIState()
 }
