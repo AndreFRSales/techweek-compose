@@ -11,3 +11,10 @@ data class Dimensions(
 )
 
 internal val LocalDimensions = staticCompositionLocalOf { Dimensions() }
+
+data class IconDimensions(
+    val regular: Dp = 48.dp,
+    val large: Dp = 214.dp
+)
+
+internal val LocalIconDimensions = staticCompositionLocalOf { IconDimensions() }
