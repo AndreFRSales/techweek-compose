@@ -13,6 +13,7 @@ data class Dimensions(
 internal val LocalDimensions = staticCompositionLocalOf { Dimensions() }
 
 data class IconDimensions(
+    val small: Dp = 32.dp,
     val regular: Dp = 48.dp,
     val large: Dp = 214.dp
 )

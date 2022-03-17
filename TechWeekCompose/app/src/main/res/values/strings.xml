@@ -2,5 +2,9 @@
     <string name="app_name">TechWeekCompose</string>
 
     <string name="main_icon_description">Image for pokemon: %s</string>
+    <string name="main_generic_error_title">Ops, something wrong happened! :(</string>
+    <string name="main_generic_error_description">Check your connection to retrieve the Pokémons, they miss you! :)</string>
+    <string name="main_generic_error_button">Try again</string>
+    <string name="main_loading_title">fetching pokémons</string>
 
 </resources>

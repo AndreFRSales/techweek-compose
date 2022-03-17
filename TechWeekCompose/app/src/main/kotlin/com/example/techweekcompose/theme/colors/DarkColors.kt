@@ -22,7 +22,7 @@ fun darkColors(
     divider: Color = colorDarkDivider
 ) = AppColors(
     primary = primary,
-    primaryDark = colorDarkPrimaryDark,
+    primaryDark = primaryDark,
     secondary = secondary,
     textPrimary = textPrimary,
     textSecondary = textSecondary,
