@@ -2,6 +2,8 @@ package com.example.techweekcompose.main.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,36 +20,37 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.techweekcompose.R
 import com.example.techweekcompose.common.composables.CustomDivider
 import com.example.techweekcompose.common.composables.GenericError
 import com.example.techweekcompose.common.composables.InfiniteListHandler
-import com.example.techweekcompose.common.composables.Loading
+import com.example.techweekcompose.common.composables.CustomLoading
 import com.example.techweekcompose.main.MainViewModel
 import com.example.techweekcompose.main.PaginationErrorState
 import com.example.techweekcompose.main.UIState
 import com.example.techweekcompose.models.PokemonDomain
+import com.example.techweekcompose.navigation.DestinationsFactory
 import com.example.techweekcompose.theme.PokemonTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     val mainViewModel: MainViewModel by viewModel()
     val uiState by mainViewModel.uiState
     val paginationErrorState by mainViewModel.paginationErrorState
@@ -55,19 +58,19 @@ fun MainScreen() {
         UIState.GenericError -> MainGenericError(onClick = { mainViewModel.retry() })
         UIState.Loading -> MainLoading()
         is UIState.Result -> {
-            PokemonListComponent((uiState as UIState.Result))
+            PokemonListComponent(navController, (uiState as UIState.Result))
         }
     }
 
     when (paginationErrorState) {
-        PaginationErrorState.Error -> MainSnackbar()
+        PaginationErrorState.Error -> MainSnackBar()
+        PaginationErrorState.Initial -> {}
     }
 }
 
 @Composable
-fun PokemonListComponent(result: UIState.Result) {
+fun PokemonListComponent(navController: NavController, result: UIState.Result) {
     val mainViewModel: MainViewModel by viewModel()
-    val uiState by mainViewModel.uiState
     val scrollState = rememberLazyListState()
     val nextPage = rememberUpdatedState(newValue = result.nextPage)
     val weight = if (result.shouldShowPaginationLoading) 1f else 0.1f
@@ -82,11 +85,26 @@ fun PokemonListComponent(result: UIState.Result) {
             itemsIndexed(result.pokemonList) { index, pokemon ->
                 PokemonListItem(
                     pokemon = pokemon,
-                    modifier = Modifier.padding(
-                        start = PokemonTheme.dimensions.medium,
-                        top = PokemonTheme.dimensions.medium,
-                        bottom = PokemonTheme.dimensions.medium
-                    )
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple(bounded = true),
+                            onClick = {
+                                pokemon.run {
+                                    navController.navigate(
+                                        DestinationsFactory.createDetailScreenDestination(
+                                            url,
+                                            urlImage,
+                                            name
+                                        )
+                                    )
+                                }
+                            })
+                        .padding(
+                            start = PokemonTheme.dimensions.medium,
+                            top = PokemonTheme.dimensions.medium,
+                            bottom = PokemonTheme.dimensions.medium
+                        )
                 )
                 if (index < result.pokemonList.lastIndex) CustomDivider()
             }
@@ -157,7 +175,7 @@ fun MainLoading() {
             style = PokemonTheme.typography.caption,
             color = PokemonTheme.colors.secondary
         )
-        Loading(modifier = Modifier.padding(top = PokemonTheme.iconDimensions.regular))
+        CustomLoading(modifier = Modifier.padding(top = PokemonTheme.dimensions.medium))
     }
 }
 
@@ -170,25 +188,26 @@ fun PagingLoading() {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.Bottom
     ) {
-        Loading(modifier = Modifier.size(PokemonTheme.iconDimensions.small))
+        CustomLoading(modifier = Modifier.size(PokemonTheme.iconDimensions.small))
     }
 }
 
 @Composable
-fun MainSnackbar() {
-    val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember {
+fun MainSnackBar() {
+    val paginationError = stringResource(id = R.string.main_pagination_error)
+    val snackBarHostState = remember {
         SnackbarHostState()
     }
 
-    LaunchedEffect(key1 = Unit, block = {
-        coroutineScope.launch {
-            snackbarHostState.showSnackbar("Teste")
-        }
-    })
+    LaunchedEffect(key1 = Unit) {
+        snackBarHostState.showSnackbar(paginationError)
+    }
 
     Box(modifier = Modifier.fillMaxHeight()) {
-        SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
+        SnackbarHost(
+            hostState = snackBarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 
 }

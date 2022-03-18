@@ -28,6 +28,7 @@ val retrofitModule = module {
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()
     }
+
     single<PokemonService> {
         get<Retrofit>().create(PokemonService::class.java)
     }

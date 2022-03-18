@@ -6,5 +6,8 @@
     <string name="main_generic_error_description">Check your connection to retrieve the Pokémons, they miss you! :)</string>
     <string name="main_generic_error_button">Try again</string>
     <string name="main_loading_title">fetching pokémons</string>
+    <string name="main_pagination_error">Error when fetching the next page.</string>
+    <string name="detail_generic_error_title">failed to fetch your pokemón :/</string>
+    <string name="detail_generic_error_description">connect your internet and try again</string>
 
 </resources>
