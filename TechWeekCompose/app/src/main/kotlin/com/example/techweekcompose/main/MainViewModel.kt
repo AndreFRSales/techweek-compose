@@ -10,6 +10,8 @@ import com.example.techweekcompose.models.PokemonDomain
 import com.example.techweekcompose.models.PokemonListResponse
 import com.example.techweekcompose.repositories.PokemonRepository
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewModel() {
 

@@ -6,6 +6,6 @@ import androidx.compose.ui.Modifier
 import com.example.techweekcompose.theme.PokemonTheme
 
 @Composable
-fun Loading(modifier: Modifier = Modifier) {
+fun CustomLoading(modifier: Modifier = Modifier) {
     CircularProgressIndicator(modifier = modifier, color = PokemonTheme.colors.secondary)
 }

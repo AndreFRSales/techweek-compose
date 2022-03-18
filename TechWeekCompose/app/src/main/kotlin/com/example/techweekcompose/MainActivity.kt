@@ -3,7 +3,7 @@ package com.example.techweekcompose
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import com.example.techweekcompose.main.composables.MainScreen
+import com.example.techweekcompose.navigation.Navigation
 import com.example.techweekcompose.theme.PokemonTheme
 
 class MainActivity : AppCompatActivity() {
@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PokemonTheme {
-                MainScreen()
+                Navigation()
             }
         }
     }
