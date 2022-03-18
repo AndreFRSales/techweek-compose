@@ -18,7 +18,7 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
         get() = _uiState
 
     private var _paginationErrorState: MutableState<PaginationErrorState> =
-        mutableStateOf(PaginationErrorState.Idle)
+        mutableStateOf(PaginationErrorState.Initial)
     val paginationErrorState: State<PaginationErrorState>
         get() = _paginationErrorState
 
@@ -99,5 +99,6 @@ sealed class UIState {
 }
 
 sealed class PaginationErrorState {
+    object Initial : PaginationErrorState()
     object Error : PaginationErrorState()
 }

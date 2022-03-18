@@ -71,14 +71,6 @@ fun PokemonListComponent(result: UIState.Result) {
     val scrollState = rememberLazyListState()
     val nextPage = rememberUpdatedState(newValue = result.nextPage)
     val weight = if (result.shouldShowPaginationLoading) 1f else 0.1f
-    var snackBarVisibility by remember { mutableStateOf(false) }
-
-    snackBarVisibility = when(uiState) {
-        UIState.PagingError -> true
-        else -> {
-            false
-        }
-    }
 
     Column(Modifier.fillMaxSize()) {
         LazyColumn(
@@ -98,10 +90,6 @@ fun PokemonListComponent(result: UIState.Result) {
                 )
                 if (index < result.pokemonList.lastIndex) CustomDivider()
             }
-        }
-
-        if(snackBarVisibility) {
-            MainSnackbar()
         }
 
         if (result.shouldShowPaginationLoading) {
