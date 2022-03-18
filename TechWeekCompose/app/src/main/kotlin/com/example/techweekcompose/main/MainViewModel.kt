@@ -17,6 +17,11 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
     val uiState: State<UIState>
         get() = _uiState
 
+    private var _paginationErrorState: MutableState<PaginationErrorState> =
+        mutableStateOf(PaginationErrorState.Idle)
+    val paginationErrorState: State<PaginationErrorState>
+        get() = _paginationErrorState
+
     private var pokemonList = listOf<PokemonDomain>()
 
     init {
@@ -37,10 +42,14 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
     fun fetchNextPage(nextPage: String?) {
         _uiState.value = UIState.Result(pokemonList, nextPage = nextPage, true)
         viewModelScope.launch {
-            nextPage?.let {
-                val (limit, offset) = nextPage.getLimitAndOffsetValues()
-                val response = pokemonRepository.fetchPokemonList(limit, offset)
-                processPokemonData(response)
+            try {
+                nextPage?.let {
+                    val (limit, offset) = nextPage.getLimitAndOffsetValues()
+                    val response = pokemonRepository.fetchPokemonList(limit, offset)
+                    processPokemonData(response)
+                }
+            } catch (exception: Exception) {
+                _paginationErrorState.value = PaginationErrorState.Error
             }
         }
     }
@@ -66,7 +75,11 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
                         }
                     }
                     pokemonList = pokemonList + pokemonListDomain
-                    _uiState.value = UIState.Result(pokemonList, nextPage = next, loading = false)
+                    _uiState.value = UIState.Result(
+                        pokemonList,
+                        nextPage = next,
+                        shouldShowPaginationLoading = false
+                    )
                 }
             }
         }
@@ -79,7 +92,12 @@ sealed class UIState {
     data class Result(
         val pokemonList: List<PokemonDomain>,
         val nextPage: String?,
-        val loading: Boolean = false
+        val shouldShowPaginationLoading: Boolean = false,
+        val pagingError: Boolean = false
     ) :
         UIState()
+}
+
+sealed class PaginationErrorState {
+    object Error : PaginationErrorState()
 }
