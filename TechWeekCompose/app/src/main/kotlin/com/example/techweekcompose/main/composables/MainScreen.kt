@@ -52,8 +52,32 @@ import org.koin.androidx.compose.viewModel
 @Composable
 fun MainScreen(navController: NavController) {
     val mainViewModel: MainViewModel by viewModel()
+    /***
+    *  particularmente não curto passar state do composable pra viewmodel, acaba adicionando
+     * uma dependencia a mais para viewmodel.
+     * Apesar da doc do google achar isso "wow! fiz aqui, pode fazer que recomendo!", existem bastante
+     * pessoas que são contras também, inclusive o cara que escreveu livro 'Jetpack Compose internals'
+     * fonte:
+     * https://twitter.com/JorgeCastilloPr/status/1487176147058454528?s=20&t=_KLXzFbamCdCj1rvw_ZAqw
+     *
+     * minha sugestão caso seja apenas uma chamada, sem precisar armazenar estados, creio que flow ja sirva.
+     * No caso que precisa de estados armazenados, stateflow pode ser uma boa opção.
+     *
+     * Isso é apenas uma opinião, não está errado usar mutable state do compose, a google até recomenda
+     *  -
+    * */
     val uiState by mainViewModel.uiState
     val paginationErrorState by mainViewModel.paginationErrorState
+    /***
+    sugestão:
+        when (val result = uiState) {
+            UIState.GenericError -> MainGenericError(onClick = { mainViewModel.retry() })
+            UIState.Loading -> MainLoading()
+            is UIState.Result -> {
+                PokemonListComponent(navController, result)
+            }
+        }
+     **/
     when (uiState) {
         UIState.GenericError -> MainGenericError(onClick = { mainViewModel.retry() })
         UIState.Loading -> MainLoading()
@@ -70,6 +94,12 @@ fun MainScreen(navController: NavController) {
 
 @Composable
 fun PokemonListComponent(navController: NavController, result: UIState.Result) {
+    /***
+    * sugestão: passar fetch next page como parametro lambda, assim não precisa fazer get
+    * 2x mainviewmodel, além disso fica mais reaproveitavel a view
+     *
+     * talvez diminuir o tamanho desse composable melhore a legibilidade também :D
+    * */
     val mainViewModel: MainViewModel by viewModel()
     val scrollState = rememberLazyListState()
     val nextPage = rememberUpdatedState(newValue = result.nextPage)

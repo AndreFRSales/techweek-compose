@@ -10,6 +10,10 @@ import com.example.techweekcompose.detail.DetailScreen
 import com.example.techweekcompose.extensions.encode
 import com.example.techweekcompose.main.composables.MainScreen
 
+/***
+* sugestão: utilizar um object aqui para armazenar esses dados, exemplo "object Screen"
+ *
+* */
 const val URL_KEY = "url"
 const val IMAGE_URL_KEY = "imageUrl"
 const val POKEMON_NAME_KEY = "pokemonName"
