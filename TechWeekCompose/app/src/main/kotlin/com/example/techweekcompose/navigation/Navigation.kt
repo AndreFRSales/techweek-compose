@@ -9,12 +9,18 @@ import androidx.navigation.navArgument
 import com.example.techweekcompose.detail.DetailScreen
 import com.example.techweekcompose.extensions.encode
 import com.example.techweekcompose.main.composables.MainScreen
+import com.example.techweekcompose.navigation.Navigation.DETAILS_SCREEN_PATH
+import com.example.techweekcompose.navigation.Navigation.IMAGE_URL_KEY
+import com.example.techweekcompose.navigation.Navigation.POKEMON_NAME_KEY
+import com.example.techweekcompose.navigation.Navigation.URL_KEY
 
-const val URL_KEY = "url"
-const val IMAGE_URL_KEY = "imageUrl"
-const val POKEMON_NAME_KEY = "pokemonName"
-private const val DETAILS_SCREEN_PATH =
-    "/$URL_KEY={$URL_KEY}&$IMAGE_URL_KEY={$IMAGE_URL_KEY}&$POKEMON_NAME_KEY={$POKEMON_NAME_KEY}"
+object Navigation {
+    const val URL_KEY = "url"
+    const val IMAGE_URL_KEY = "imageUrl"
+    const val POKEMON_NAME_KEY = "pokemonName"
+    const val DETAILS_SCREEN_PATH =
+        "/$URL_KEY={$URL_KEY}&$IMAGE_URL_KEY={$IMAGE_URL_KEY}&$POKEMON_NAME_KEY={$POKEMON_NAME_KEY}"
+}
 
 @Composable
 fun Navigation() {

@@ -9,6 +9,9 @@ import com.example.techweekcompose.extensions.getLimitAndOffsetValues
 import com.example.techweekcompose.models.PokemonDomain
 import com.example.techweekcompose.models.PokemonListResponse
 import com.example.techweekcompose.repositories.PokemonRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -17,7 +20,6 @@ class MainViewModel(private val pokemonRepository: PokemonRepository) : ViewMode
 
     private val _uiState: MutableState<UIState> = mutableStateOf(UIState.Loading)
     val uiState: State<UIState>
-        get() = _uiState
 
     private var _paginationErrorState: MutableState<PaginationErrorState> =
         mutableStateOf(PaginationErrorState.Initial)

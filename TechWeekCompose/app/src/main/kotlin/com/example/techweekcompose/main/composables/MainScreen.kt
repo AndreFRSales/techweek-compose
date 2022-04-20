@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,16 +36,15 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.techweekcompose.R
 import com.example.techweekcompose.common.composables.CustomDivider
+import com.example.techweekcompose.common.composables.CustomLoading
 import com.example.techweekcompose.common.composables.GenericError
 import com.example.techweekcompose.common.composables.InfiniteListHandler
-import com.example.techweekcompose.common.composables.CustomLoading
 import com.example.techweekcompose.main.MainViewModel
 import com.example.techweekcompose.main.PaginationErrorState
 import com.example.techweekcompose.main.UIState
 import com.example.techweekcompose.models.PokemonDomain
 import com.example.techweekcompose.navigation.DestinationsFactory
 import com.example.techweekcompose.theme.PokemonTheme
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
 
 @Composable
@@ -54,11 +52,11 @@ fun MainScreen(navController: NavController) {
     val mainViewModel: MainViewModel by viewModel()
     val uiState by mainViewModel.uiState
     val paginationErrorState by mainViewModel.paginationErrorState
-    when (uiState) {
+    when (val result: UIState = uiState) {
         UIState.GenericError -> MainGenericError(onClick = { mainViewModel.retry() })
         UIState.Loading -> MainLoading()
         is UIState.Result -> {
-            PokemonListComponent(navController, (uiState as UIState.Result))
+            PokemonListComponent(navController, result) { mainViewModel.fetchNextPage(result.nextPage) }
         }
     }
 
@@ -69,10 +67,13 @@ fun MainScreen(navController: NavController) {
 }
 
 @Composable
-fun PokemonListComponent(navController: NavController, result: UIState.Result) {
-    val mainViewModel: MainViewModel by viewModel()
+fun PokemonListComponent(
+    navController: NavController,
+    result: UIState.Result,
+    fetchNextPage: (String?) -> Unit
+) {
     val scrollState = rememberLazyListState()
-    val nextPage = rememberUpdatedState(newValue = result.nextPage)
+    val nextPage by rememberUpdatedState(newValue = result.nextPage)
     val weight = if (result.shouldShowPaginationLoading) 1f else 0.1f
 
     Column(Modifier.fillMaxSize()) {
@@ -115,7 +116,7 @@ fun PokemonListComponent(navController: NavController, result: UIState.Result) {
         }
 
         InfiniteListHandler(listState = scrollState, buffer = 2) {
-            mainViewModel.fetchNextPage(nextPage.value)
+            fetchNextPage(nextPage)
         }
     }
 
